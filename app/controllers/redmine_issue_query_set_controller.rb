@@ -18,37 +18,48 @@ class RedmineIssueQuerySetController < ApplicationController
     @back_url = safe_back
   end
 
+  def queries
+    list = editable_queries('all')
+    projects = Project.where(:id => list.map(&:project_id).compact.uniq).index_by(&:id)
+    rows = list.map do |query|
+      project = projects[query.project_id]
+      {
+        :id => query.id,
+        :name => query.name.to_s,
+        :project_id => query.project_id,
+        :project => project ? project.name.to_s : l(:redmine_issue_query_set_global)
+      }
+    end
+    render :json => {:queries => rows}
+  end
+
   def apply
     @issues = selected_issues
     @issue_ids = @issues.map(&:id)
     @scope = selected_scope
     @back_url = safe_back
-    query = visible_query(params[:query_id])
-    unless query && query.editable_by?(User.current)
-      flash[:error] = l(:redmine_issue_query_set_denied)
-      redirect_to(index_location)
-      return
-    end
     if @issues.empty?
-      flash[:error] = l(:redmine_issue_query_set_none)
-      redirect_to(@back_url)
+      return fail_apply(l(:redmine_issue_query_set_none))
+    end
+
+    ids = RedmineIssueQuerySet.integer_list(params[:query_ids], 50)
+    ids = RedmineIssueQuerySet.integer_list(params[:query_id], 50) if ids.empty?
+    if ids.empty?
+      return fail_apply(l(:redmine_issue_query_set_no_queries))
+    end
+
+    results = ids.map {|id| apply_one(id)}
+    if request.xhr?
+      render :json => {:ok => results.any? {|row| row[:ok]}, :results => results}
       return
     end
 
-    status, info = RedmineIssueQuerySet::Appender.call(query, @issue_ids)
-    case status
-    when :ok
-      flash[:notice] = l(:redmine_issue_query_set_done, :name => query.name, :number => info[:added].size)
+    row = results.first || {}
+    if row[:ok]
+      flash[:notice] = row[:message]
       redirect_to(@back_url)
-    when :operator
-      flash[:error] = l(:redmine_issue_query_set_operator, :name => query.name)
-      redirect_to(index_location)
-    when :empty
-      flash[:notice] = l(:redmine_issue_query_set_already, :name => query.name)
-      redirect_to(index_location)
     else
-      message = query.errors.full_messages.join(', ')
-      flash[:error] = message.present? ? message : l(:redmine_issue_query_set_failed)
+      flash[:error] = row[:message] || l(:redmine_issue_query_set_failed)
       redirect_to(index_location)
     end
   end
@@ -100,6 +111,36 @@ class RedmineIssueQuerySetController < ApplicationController
     end
   rescue ActiveRecord::ActiveRecordError
     []
+  end
+
+  def apply_one(query_id)
+    query = visible_query(query_id)
+    unless query && query.editable_by?(User.current)
+      return {:id => query_id, :ok => false, :message => l(:redmine_issue_query_set_denied)}
+    end
+
+    status, info = RedmineIssueQuerySet::Appender.call(query, @issue_ids)
+    message = case status
+              when :ok
+                l(:redmine_issue_query_set_done, :name => query.name, :number => info[:added].size)
+              when :empty
+                l(:redmine_issue_query_set_already, :name => query.name)
+              when :operator
+                l(:redmine_issue_query_set_operator, :name => query.name)
+              else
+                text = query.errors.full_messages.join(', ')
+                text.present? ? text : l(:redmine_issue_query_set_failed)
+              end
+    {:id => query.id, :name => query.name.to_s, :ok => status == :ok || status == :empty, :message => message}
+  end
+
+  def fail_apply(message)
+    if request.xhr?
+      render :json => {:ok => false, :error => message, :results => []}, :status => 422
+    else
+      flash[:error] = message
+      redirect_to(safe_back)
+    end
   end
 
   def visible_query(id)

@@ -6,7 +6,7 @@ Seçilen işleri kayıtlı bir sorguya ekler. Numaralar sorgunun iş listesinin 
 
 ## Ne yapar
 
-* İş listesinde işleri seçip sağ tıklayın ve **Sorguya ekle** deyin.
+* İş listesinde işleri seçip sağ tıklayın ve **Sorguya ekle** deyin. Küçük pencerede arayıp birden fazla sorgu seçebilirsiniz.
 * Sorgu listesini, düzenleyebildiğiniz tüm sorgular veya yalnız bu projenin sorguları olarak süzün.
 * Var olan numaralar sırasını korur. Yeni numaralar sona eklenir. Tekrarlar ve fazladan virgüller temizlenir.
 

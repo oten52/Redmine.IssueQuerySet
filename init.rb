@@ -15,7 +15,7 @@ Redmine::Plugin.register :redmine_issue_query_set do
   author 'Niltek Arge'
   author_url 'https://github.com/oten52'
   description 'Seçilen iş numaralarını kayıtlı bir sorgunun iş listesine virgülle ekler.'
-  version '0.1.0'
+  version '0.1.1'
   url 'https://github.com/oten52/Redmine.IssueQuerySet'
   requires_redmine version_or_higher: '4.2'
 

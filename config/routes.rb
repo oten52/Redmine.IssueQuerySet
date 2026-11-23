@@ -1,3 +1,7 @@
+get 'issue_query_set/queries', :to => 'redmine_issue_query_set#queries'
+post 'issue_query_set/apply', :to => 'redmine_issue_query_set#apply'
+get 'projects/:project_id/issue_query_set/queries', :to => 'redmine_issue_query_set#queries'
+post 'projects/:project_id/issue_query_set/apply', :to => 'redmine_issue_query_set#apply'
 get 'issue_query_set', :to => 'redmine_issue_query_set#index'
 post 'issue_query_set', :to => 'redmine_issue_query_set#apply'
 get 'projects/:project_id/issue_query_set', :to => 'redmine_issue_query_set#index'

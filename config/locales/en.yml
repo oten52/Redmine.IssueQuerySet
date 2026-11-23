@@ -17,3 +17,7 @@ en:
   redmine_issue_query_set_already: "The selected issues are already in %{name}."
   redmine_issue_query_set_operator: "The issue filter on %{name} cannot be appended."
   redmine_issue_query_set_failed: The query could not be saved.
+  redmine_issue_query_set_search: Search queries
+  redmine_issue_query_set_close: Close
+  redmine_issue_query_set_no_match: No matching query
+  redmine_issue_query_set_summary: "%{number} queries were updated."

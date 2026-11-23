@@ -1,0 +1,288 @@
+<div id="issue-query-set" hidden
+     data-queries-url="<%= url_for(:controller => 'redmine_issue_query_set', :action => 'queries', :only_path => true) %>"
+     data-project-queries-url="<%= url_for(:controller => 'redmine_issue_query_set', :action => 'queries', :project_id => '__ID__', :only_path => true) %>"
+     data-apply-url="<%= url_for(:controller => 'redmine_issue_query_set', :action => 'apply', :only_path => true) %>"
+     data-project-apply-url="<%= url_for(:controller => 'redmine_issue_query_set', :action => 'apply', :project_id => '__ID__', :only_path => true) %>"
+     data-all="<%= l(:redmine_issue_query_set_all) %>"
+     data-project="<%= l(:redmine_issue_query_set_project) %>"
+     data-search="<%= l(:redmine_issue_query_set_search) %>"
+     data-none="<%= l(:redmine_issue_query_set_no_queries) %>"
+     data-no-match="<%= l(:redmine_issue_query_set_no_match) %>"
+     data-add="<%= l(:redmine_issue_query_set_append) %>"
+     data-close="<%= l(:redmine_issue_query_set_close) %>"
+     data-title="<%= l(:redmine_issue_query_set_menu) %>"
+     data-failed="<%= l(:redmine_issue_query_set_failed) %>">
+  <div class="query-set-dialog" role="dialog" aria-modal="true">
+    <div class="query-set-head">
+      <strong id="issue-query-set-title"></strong>
+      <button type="button" id="issue-query-set-x" aria-label="<%= l(:redmine_issue_query_set_close) %>">×</button>
+    </div>
+    <input type="search" id="issue-query-set-search" autocomplete="off" placeholder="<%= l(:redmine_issue_query_set_search) %>">
+    <div class="query-set-scopes">
+      <button type="button" id="issue-query-set-all" class="is-on"><%= l(:redmine_issue_query_set_all) %></button>
+      <button type="button" id="issue-query-set-project"><%= l(:redmine_issue_query_set_project) %></button>
+    </div>
+    <div id="issue-query-set-list" class="query-set-list"></div>
+    <p id="issue-query-set-note" class="query-set-note"></p>
+    <div class="query-set-actions">
+      <button type="button" id="issue-query-set-cancel"><%= l(:redmine_issue_query_set_close) %></button>
+      <button type="button" id="issue-query-set-save"><%= l(:redmine_issue_query_set_append) %></button>
+    </div>
+  </div>
+</div>
+
+<style>
+  #issue-query-set[hidden] { display: none !important; }
+  #issue-query-set:not([hidden]) { display: flex !important; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 10000; align-items: flex-start; justify-content: center; padding: 12vh 16px 16px; background: rgba(15, 23, 42, 0.45); box-sizing: border-box; }
+  #issue-query-set, #issue-query-set * { box-sizing: border-box; }
+  #issue-query-set .query-set-dialog { display: flex; flex-direction: column; width: 400px; max-width: 100%; max-height: 70vh; margin: 0; padding: 14px; background: #fff; color: #1d2733; border-radius: 14px; box-shadow: 0 18px 50px rgba(15, 23, 42, 0.28); font-family: "Segoe UI", system-ui, sans-serif; font-size: 14px; }
+  #issue-query-set .query-set-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 10px; }
+  #issue-query-set .query-set-head strong { font-size: 15px; }
+  #issue-query-set .query-set-head button, #issue-query-set .query-set-actions button, #issue-query-set .query-set-scopes button { height: auto; min-height: 30px; margin: 0; padding: 5px 10px; border-radius: 8px; font: inherit; cursor: pointer; }
+  #issue-query-set .query-set-head button { width: 28px; min-height: 28px; padding: 0; border: 0; background: transparent; color: #526070; font-size: 20px; }
+  #issue-query-set input[type="search"] { display: block; width: 100%; max-width: none; height: 36px; margin: 0 0 8px; padding: 6px 10px; border: 1px solid #d5dbe3; border-radius: 8px; background: #fff; color: #1d2733; float: none; }
+  #issue-query-set .query-set-scopes { display: flex; gap: 6px; margin: 0 0 8px; }
+  #issue-query-set .query-set-scopes button { border: 1px solid #d5dbe3; background: #fff; color: #314055; }
+  #issue-query-set .query-set-scopes button.is-on { background: #2f6fed; border-color: #2458c5; color: #fff; }
+  #issue-query-set .query-set-list { overflow: auto; max-height: 240px; margin: 0 0 8px; border: 1px solid #e6e8ee; border-radius: 8px; }
+  #issue-query-set .query-set-row { display: flex; align-items: flex-start; gap: 8px; margin: 0; padding: 8px 10px; border-bottom: 1px solid #f0f2f6; font-weight: normal; cursor: pointer; }
+  #issue-query-set .query-set-row:last-child { border-bottom: 0; }
+  #issue-query-set .query-set-row input { margin: 2px 0 0; }
+  #issue-query-set .query-set-row span { display: block; color: #6b7788; font-size: 12px; font-weight: normal; }
+  #issue-query-set .query-set-empty { margin: 0; padding: 12px; color: #6b7788; }
+  #issue-query-set .query-set-note { min-height: 18px; margin: 0 0 8px; color: #3d4b5c; font-size: 12px; }
+  #issue-query-set .query-set-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  #issue-query-set #issue-query-set-cancel { border: 1px solid #d5dbe3; background: #fff; color: #314055; }
+  #issue-query-set #issue-query-set-save { border: 1px solid #2458c5; background: #2f6fed; color: #fff; }
+  #issue-query-set #issue-query-set-save:disabled { opacity: 0.6; }
+</style>
+
+<%= javascript_tag do %>
+  (function() {
+    var root = document.getElementById('issue-query-set');
+    if (!root || root.getAttribute('data-ready') === '1') { return; }
+    root.setAttribute('data-ready', '1');
+    if (root.parentNode !== document.body) { document.body.appendChild(root); }
+
+    var queries = [];
+    var picked = {};
+    var issueIds = [];
+    var projectId = '';
+    var scope = 'all';
+    var loadedFor = null;
+
+    function text(name) { return root.getAttribute(name) || ''; }
+    function fold(value) { return String(value || '').toLocaleLowerCase('tr'); }
+    function token() {
+      var meta = document.querySelector('meta[name="csrf-token"]');
+      return meta ? meta.getAttribute('content') : '';
+    }
+    function tokenName() {
+      var meta = document.querySelector('meta[name="csrf-param"]');
+      return meta ? meta.getAttribute('content') : 'authenticity_token';
+    }
+    function hideMenu() {
+      var menu = document.getElementById('context-menu');
+      if (menu) { menu.style.display = 'none'; }
+    }
+    function endpoint(kind) {
+      var globalUrl = text(kind === 'apply' ? 'data-apply-url' : 'data-queries-url');
+      var projectUrl = text(kind === 'apply' ? 'data-project-apply-url' : 'data-project-queries-url');
+      if (projectId && projectUrl) { return projectUrl.replace('__ID__', projectId); }
+      return globalUrl;
+    }
+    function selectedCount() {
+      var count = 0;
+      for (var key in picked) {
+        if (picked.hasOwnProperty(key) && picked[key]) { count += 1; }
+      }
+      return count;
+    }
+    function paintButton() {
+      var button = document.getElementById('issue-query-set-save');
+      var count = selectedCount();
+      if (!button) { return; }
+      button.disabled = count === 0;
+      button.textContent = text('data-add') + (count ? ' (' + count + ')' : '');
+    }
+    function visibleQueries() {
+      var input = document.getElementById('issue-query-set-search');
+      var needle = fold(input ? input.value : '');
+      var rows = [];
+      for (var i = 0; i < queries.length; i++) {
+        var query = queries[i];
+        if (scope === 'project' && String(query.project_id || '') !== String(projectId || '')) { continue; }
+        var hay = fold(query.name + ' ' + (query.project || ''));
+        if (needle && hay.indexOf(needle) === -1) { continue; }
+        rows.push(query);
+      }
+      return rows;
+    }
+    function render() {
+      var list = document.getElementById('issue-query-set-list');
+      if (!list) { return; }
+      while (list.firstChild) { list.removeChild(list.firstChild); }
+      var rows = visibleQueries();
+      if (!rows.length) {
+        var empty = document.createElement('p');
+        empty.className = 'query-set-empty';
+        empty.textContent = queries.length ? text('data-no-match') : text('data-none');
+        list.appendChild(empty);
+        paintButton();
+        return;
+      }
+      for (var i = 0; i < rows.length; i++) {
+        (function(query) {
+          var label = document.createElement('label');
+          label.className = 'query-set-row';
+          var box = document.createElement('input');
+          box.type = 'checkbox';
+          box.checked = !!picked[String(query.id)];
+          box.addEventListener('change', function() {
+            picked[String(query.id)] = box.checked;
+            paintButton();
+          });
+          var body = document.createElement('div');
+          var name = document.createElement('strong');
+          name.textContent = query.name;
+          var meta = document.createElement('span');
+          meta.textContent = query.project || '';
+          body.appendChild(name);
+          body.appendChild(meta);
+          label.appendChild(box);
+          label.appendChild(body);
+          list.appendChild(label);
+        })(rows[i]);
+      }
+      paintButton();
+    }
+    function setScope(next) {
+      scope = next;
+      var all = document.getElementById('issue-query-set-all');
+      var project = document.getElementById('issue-query-set-project');
+      if (all) { all.className = next === 'all' ? 'is-on' : ''; }
+      if (project) { project.className = next === 'project' ? 'is-on' : ''; }
+      render();
+    }
+    function note(message) {
+      var node = document.getElementById('issue-query-set-note');
+      if (node) { node.textContent = message || ''; }
+    }
+    function closePopup() {
+      root.hidden = true;
+      note('');
+    }
+    function loadQueries() {
+      var key = String(projectId || '');
+      var hint = issueHint();
+      if (loadedFor === key) {
+        render();
+        note(hint);
+        return;
+      }
+      fetch(endpoint('queries'), {credentials: 'same-origin', headers: {'Accept': 'application/json'}}).then(function(response) {
+        return response.json();
+      }).then(function(data) {
+        queries = (data && data.queries) || [];
+        loadedFor = key;
+        render();
+        note(hint);
+      }).catch(function() {
+        queries = [];
+        loadedFor = null;
+        note(text('data-failed'));
+        render();
+      });
+    }
+    function issueHint() {
+      var clean = [];
+      for (var i = 0; i < issueIds.length; i++) {
+        if (issueIds[i]) { clean.push(issueIds[i]); }
+      }
+      if (clean.length > 8) { return clean.slice(0, 8).join(', ') + '…'; }
+      return clean.join(', ');
+    }
+    function openPopup(link) {
+      issueIds = String(link.getAttribute('data-issue-ids') || '').split(',');
+      projectId = link.getAttribute('data-project-id') || '';
+      var title = document.getElementById('issue-query-set-title');
+      var projectButton = document.getElementById('issue-query-set-project');
+      var search = document.getElementById('issue-query-set-search');
+      if (title) { title.textContent = text('data-title'); }
+      if (projectButton) { projectButton.style.display = projectId ? '' : 'none'; }
+      if (!projectId) { scope = 'all'; }
+      if (search) { search.value = ''; }
+      picked = {};
+      setScope(scope);
+      note(issueHint());
+      root.hidden = false;
+      hideMenu();
+      loadQueries();
+      if (search) { search.focus(); }
+    }
+    function savePopup() {
+      var button = document.getElementById('issue-query-set-save');
+      if (button) { button.disabled = true; }
+      var body = new FormData();
+      body.append(tokenName(), token());
+      for (var i = 0; i < issueIds.length; i++) {
+        if (issueIds[i]) { body.append('ids[]', issueIds[i]); }
+      }
+      for (var key in picked) {
+        if (picked.hasOwnProperty(key) && picked[key]) { body.append('query_ids[]', key); }
+      }
+      fetch(endpoint('apply'), {
+        method: 'POST',
+        body: body,
+        credentials: 'same-origin',
+        headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json'}
+      }).then(function(response) {
+        return response.json().then(function(data) { return data || {}; }, function() { return {}; });
+      }).then(function(data) {
+        var rows = data.results || [];
+        var lines = [];
+        for (var i = 0; i < rows.length; i++) {
+          if (rows[i].message) { lines.push(rows[i].message); }
+        }
+        note(lines.join(' ') || data.error || text('data-failed'));
+        paintButton();
+      }).catch(function() {
+        note(text('data-failed'));
+        paintButton();
+      });
+    }
+
+    document.addEventListener('click', function(event) {
+      var node = event.target;
+      while (node && node !== document) {
+        if (node.className && typeof node.className === 'string' && (' ' + node.className + ' ').indexOf(' issue-query-set-open ') !== -1) {
+          event.preventDefault();
+          event.stopPropagation();
+          openPopup(node);
+          return;
+        }
+        node = node.parentNode;
+      }
+    }, true);
+
+    var search = document.getElementById('issue-query-set-search');
+    var all = document.getElementById('issue-query-set-all');
+    var project = document.getElementById('issue-query-set-project');
+    var cancel = document.getElementById('issue-query-set-cancel');
+    var close = document.getElementById('issue-query-set-x');
+    var save = document.getElementById('issue-query-set-save');
+    if (search) { search.addEventListener('input', render); }
+    if (all) { all.addEventListener('click', function() { setScope('all'); }); }
+    if (project) { project.addEventListener('click', function() { setScope('project'); }); }
+    if (cancel) { cancel.addEventListener('click', closePopup); }
+    if (close) { close.addEventListener('click', closePopup); }
+    if (save) { save.addEventListener('click', savePopup); }
+    root.addEventListener('click', function(event) {
+      if (event.target === root) { closePopup(); }
+    });
+    document.addEventListener('keydown', function(event) {
+      if (root.hidden) { return; }
+      if (event.key === 'Escape' || event.keyCode === 27) { closePopup(); }
+    });
+  })();
+<% end %>

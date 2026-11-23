@@ -17,3 +17,7 @@ tr:
   redmine_issue_query_set_already: "%{name} sorgusunda seçilen işler zaten var."
   redmine_issue_query_set_operator: "%{name} sorgusunun iş filtresi ekleme için uygun değil."
   redmine_issue_query_set_failed: Sorgu kaydedilemedi.
+  redmine_issue_query_set_search: Sorgu ara
+  redmine_issue_query_set_close: Kapat
+  redmine_issue_query_set_no_match: Eşleşen sorgu yok
+  redmine_issue_query_set_summary: "%{number} sorgu güncellendi."

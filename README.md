@@ -6,7 +6,7 @@ Adds selected issues to a saved query. Their numbers are appended to the query's
 
 ## Features
 
-* On the issue list, select issues and right-click **Add to query**.
+* On the issue list, select issues and right-click **Add to query**. A small popup searches queries and can update several at once.
 * Filter the query list by all queries you can edit, or only this project's queries.
 * Existing numbers stay in order. New numbers are added at the end. Duplicates and extra commas are removed.
 
