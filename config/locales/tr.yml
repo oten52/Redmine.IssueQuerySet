@@ -1,0 +1,19 @@
+tr:
+  redmine_issue_query_set_menu: Sorguya ekle
+  redmine_issue_query_set_selected: "Seçilen işler:"
+  redmine_issue_query_set_help: Numaralar seçilen sorgunun iş listesine virgülle eklenir. Listede varsa tekrar yazılmaz. Başta veya sonda fazladan virgül bırakılmaz.
+  redmine_issue_query_set_all: Tümü
+  redmine_issue_query_set_project: Bu proje
+  redmine_issue_query_set_global: Genel
+  redmine_issue_query_set_current: "Şu an:"
+  redmine_issue_query_set_result: "Eklenince:"
+  redmine_issue_query_set_empty: İş numarası yok
+  redmine_issue_query_set_append: Ekle
+  redmine_issue_query_set_back: İşlere dön
+  redmine_issue_query_set_none: Görülebilen iş seçilmedi.
+  redmine_issue_query_set_no_queries: Düzenleyebileceğiniz kayıtlı sorgu yok.
+  redmine_issue_query_set_denied: Bu sorguyu düzenleme izniniz yok.
+  redmine_issue_query_set_done: "%{name} sorgusuna %{number} iş eklendi."
+  redmine_issue_query_set_already: "%{name} sorgusunda seçilen işler zaten var."
+  redmine_issue_query_set_operator: "%{name} sorgusunun iş filtresi ekleme için uygun değil."
+  redmine_issue_query_set_failed: Sorgu kaydedilemedi.

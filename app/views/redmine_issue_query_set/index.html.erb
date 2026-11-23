@@ -1,0 +1,73 @@
+<% html_title(l(:redmine_issue_query_set_menu)) %>
+
+<style>
+  #issue-query-set .query-set-ids { margin: 0 0 14px; padding: 10px 12px; background: #f4f7fb; border: 1px solid #e1e6ef; border-radius: 8px; word-break: break-all; }
+  #issue-query-set .query-set-scopes { margin: 0 0 14px; }
+  #issue-query-set .query-set-scopes a { display: inline-block; margin: 0 8px 0 0; padding: 6px 10px; border: 1px solid #d5dbe3; border-radius: 8px; background: #fff; text-decoration: none; }
+  #issue-query-set .query-set-scopes a.is-on { background: #2f6fed; border-color: #2458c5; color: #fff; }
+  #issue-query-set .query-set-card { margin: 0 0 10px; padding: 12px 14px; background: #fff; border: 1px solid #e4e7ee; border-radius: 8px; }
+  #issue-query-set .query-set-card h3 { margin: 0 0 6px; font-size: 15px; }
+  #issue-query-set .query-set-badge { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 999px; background: #eef2f7; color: #526070; font-size: 12px; font-weight: normal; }
+  #issue-query-set .query-set-line { margin: 0 0 6px; color: #3d4b5c; word-break: break-all; }
+  #issue-query-set form { display: block; margin: 8px 0 0; }
+  #issue-query-set .query-set-muted { color: #6b7280; }
+</style>
+
+<div id="issue-query-set">
+  <h2><%= l(:redmine_issue_query_set_menu) %></h2>
+  <p class="query-set-ids">
+    <strong><%= l(:redmine_issue_query_set_selected) %></strong>
+    <%= @issue_ids.join(',') %>
+  </p>
+  <p class="query-set-muted"><%= l(:redmine_issue_query_set_help) %></p>
+
+  <p class="query-set-scopes">
+    <%= link_to l(:redmine_issue_query_set_all),
+          {:controller => 'redmine_issue_query_set', :action => 'index', :project_id => @project, :scope => 'all', :ids => @issue_ids, :back_url => @back_url},
+          :class => (@scope == 'all' ? 'is-on' : nil) %>
+    <% if @project %>
+      <%= link_to l(:redmine_issue_query_set_project),
+            {:controller => 'redmine_issue_query_set', :action => 'index', :project_id => @project, :scope => 'project', :ids => @issue_ids, :back_url => @back_url},
+            :class => (@scope == 'project' ? 'is-on' : nil) %>
+    <% end %>
+  </p>
+
+  <% if @queries.empty? %>
+    <p class="query-set-muted"><%= l(:redmine_issue_query_set_no_queries) %></p>
+  <% end %>
+
+  <% @queries.each do |query| %>
+    <% info = RedmineIssueQuerySet::Appender.preview(query, @issue_ids) %>
+    <article class="query-set-card">
+      <h3>
+        <%= query.name %>
+        <span class="query-set-badge"><%= query.project ? query.project.name : l(:redmine_issue_query_set_global) %></span>
+      </h3>
+      <p class="query-set-line">
+        <%= l(:redmine_issue_query_set_current) %>
+        <%= info[:existing].empty? ? l(:redmine_issue_query_set_empty) : info[:existing].join(',') %>
+      </p>
+      <p class="query-set-line">
+        <%= l(:redmine_issue_query_set_result) %>
+        <%= info[:merged].join(',') %>
+      </p>
+      <% if info[:operator].present? && info[:operator] != '=' %>
+        <p class="query-set-muted"><%= l(:redmine_issue_query_set_operator, :name => query.name) %></p>
+      <% elsif info[:added].empty? %>
+        <p class="query-set-muted"><%= l(:redmine_issue_query_set_already, :name => query.name) %></p>
+      <% else %>
+        <%= form_tag({:controller => 'redmine_issue_query_set', :action => 'apply', :project_id => @project}, :id => "issue_query_set_#{query.id}") do %>
+          <%= hidden_field_tag :query_id, query.id, :id => "issue_query_set_query_#{query.id}" %>
+          <%= hidden_field_tag :scope, @scope, :id => "issue_query_set_scope_#{query.id}" %>
+          <%= hidden_field_tag :back_url, @back_url, :id => "issue_query_set_back_#{query.id}" %>
+          <% @issue_ids.each do |issue_id| %>
+            <%= hidden_field_tag 'ids[]', issue_id, :id => "issue_query_set_#{query.id}_#{issue_id}" %>
+          <% end %>
+          <%= submit_tag l(:redmine_issue_query_set_append) %>
+        <% end %>
+      <% end %>
+    </article>
+  <% end %>
+
+  <p><%= link_to l(:redmine_issue_query_set_back), @back_url %></p>
+</div>

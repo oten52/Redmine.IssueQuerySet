@@ -1,0 +1,19 @@
+en:
+  redmine_issue_query_set_menu: Add to query
+  redmine_issue_query_set_selected: "Selected issues:"
+  redmine_issue_query_set_help: Numbers are appended to the query issue list with commas. Numbers already present are skipped. No extra comma is left at either end.
+  redmine_issue_query_set_all: All
+  redmine_issue_query_set_project: This project
+  redmine_issue_query_set_global: Global
+  redmine_issue_query_set_current: "Now:"
+  redmine_issue_query_set_result: "After adding:"
+  redmine_issue_query_set_empty: No issue numbers
+  redmine_issue_query_set_append: Add
+  redmine_issue_query_set_back: Back to issues
+  redmine_issue_query_set_none: No visible issue was selected.
+  redmine_issue_query_set_no_queries: There is no saved query you can edit.
+  redmine_issue_query_set_denied: You cannot edit this query.
+  redmine_issue_query_set_done: "%{number} issues were added to %{name}."
+  redmine_issue_query_set_already: "The selected issues are already in %{name}."
+  redmine_issue_query_set_operator: "The issue filter on %{name} cannot be appended."
+  redmine_issue_query_set_failed: The query could not be saved.

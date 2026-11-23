@@ -1,0 +1,8 @@
+<% ids = @issue_ids.presence || (@issues && @issues.map(&:id)) %>
+<% if ids.present? && User.current.logged? %>
+  <li>
+    <%= link_to l(:redmine_issue_query_set_menu),
+          {:controller => 'redmine_issue_query_set', :action => 'index', :project_id => (@project && @project.identifier), :ids => ids, :back_url => @back},
+          :class => 'icon icon-add' %>
+  </li>
+<% end %>
